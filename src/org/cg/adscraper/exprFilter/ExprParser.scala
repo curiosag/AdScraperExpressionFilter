@@ -2,12 +2,10 @@ package org.cg.adscraper.exprFilter
 
 import scala.util.parsing.combinator.syntactical._;
 
-class Token(v: String) {
-  val token = v
-}
-case class Id()(token: String) extends Token(token)
-case class Num()(token: String) extends Token(token)
-case class Op()(token: String) extends Token(token)
+class Token(val token: String) 
+case class Id(override val token: String) extends Token(token)
+case class Num(override val token: String) extends Token(token)
+case class Op(override val token: String) extends Token(token)
 
 class ExprParser[T](e: ExprEvaluator[T]) extends StandardTokenParsers {
   val cFalse = "false"
@@ -35,11 +33,11 @@ class ExprParser[T](e: ExprEvaluator[T]) extends StandardTokenParsers {
    */
 
   def booleanExpr: Parser[EvalResult[T]] = bNotFactor ~ rep((cOr | cAnd) ~ bNotFactor) ^^ {
-    case f ~ flist => flist.foldLeft(f)((current, next) => next match { case (op ~ rightResult) => e.evalBinOpBoolean(current, Op()(op), rightResult) })
+    case f ~ flist => flist.foldLeft(f)((current, next) => next match { case (op ~ rightResult) => e.evalBinOpBoolean(current, Op(op), rightResult) })
   }
 
   def bNotFactor: Parser[EvalResult[T]] = opt(cNot) ~ bFactor ^^ {
-    case Some(not) ~ f => e.evalUnOp(f, Op()(not))
+    case Some(not) ~ f => e.evalUnOp(f, Op(not))
     case None ~ f => f
   }
 
@@ -47,15 +45,15 @@ class ExprParser[T](e: ExprEvaluator[T]) extends StandardTokenParsers {
 
   def bConst: Parser[EvalResult[T]] = (cFalse | cTrue) ^^ { case c => e.evalConst(c) }
 
-  def numBinOp: Parser[EvalResult[T]] = term ~ binOp ~ term ^^ { case (v1 ~ op ~ v2) => e.evalRelOp(v1, Op()(op), v2) }
+  def numBinOp: Parser[EvalResult[T]] = term ~ binOp ~ term ^^ { case (v1 ~ op ~ v2) => e.evalRelOp(v1, Op(op), v2) }
 
-  def numInterval: Parser[EvalResult[T]] = term ~ binOp ~ term ~ binOp ~ term ^^ { case (v1 ~ op1 ~ v2 ~ op2 ~ v3) => e.evalBinOpBoolean(e.evalRelOp(v1, Op()(op1), v2), Op()(cAnd), e.evalRelOp(v2, Op()(op2), v3)) }
+  def numInterval: Parser[EvalResult[T]] = term ~ binOp ~ term ~ binOp ~ term ^^ { case (v1 ~ op1 ~ v2 ~ op2 ~ v3) => e.evalBinOpBoolean(e.evalRelOp(v1, Op(op1), v2), Op(cAnd), e.evalRelOp(v2, Op(op2), v3)) }
 
   def passesFilter: Parser[EvalResult[T]] = cPasses ~> "(" ~> id ~ "," ~ id <~ ")" ^^ { case (v1 ~ "," ~ v2) => e.evalPassFilter(v1, v2) }
 
   def term: Parser[Token] = id | num
-  def id: Parser[Id] = ident ^^ { case x => Id()(x) }
-  def num: Parser[Num] = numericLit ^^ { case x => Num()(x) }
+  def id: Parser[Id] = ident ^^ { case x => Id(x) }
+  def num: Parser[Num] = numericLit ^^ { case x => Num(x) }
 
   def bFunction: Parser[EvalResult[T]] = passesFilter | numInterval | numBinOp
 

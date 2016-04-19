@@ -3,8 +3,6 @@ package org.cg.adscraper.exprFilter
 import org.cg.ads.advalues.ScrapedValues
 import org.cg.ads.filterlist.FilterList
 
-case class ResultAdScraper(status: Integer, msg: String)
-
 class ExprParserAdScraper(v: ScrapedValues, f: FilterList) extends ExprParser[Boolean](new ExprContextAdScraper(v, f)) {
   
   def eval(rule: String): ResultAdScraper = {

@@ -31,8 +31,8 @@ class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEv
   def getNumber(v: Token) = 
   {
     v match {
-      case Id() => getCtxNumber(v.token)
-      case Num() => decodeNumber(v.token)
+      case Id(token) => getCtxNumber(token)
+      case Num(token) => decodeNumber(token)
       case _ => EvalFail("unexpected token type")
     }
   } 

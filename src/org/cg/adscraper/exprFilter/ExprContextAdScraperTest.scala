@@ -12,7 +12,7 @@ import java.util.ArrayList
 
 import scala.util.parsing.combinator
 
-class ExprContextSuite extends JUnitSuite {
+class ExprContextAdScraperSuite extends JUnitSuite {
 
   val values = new ScrapedValues()
   val filters = new FilterList()
@@ -86,44 +86,44 @@ class ExprContextSuite extends JUnitSuite {
   }
 
   @Test def testPassFilter() {
-    probeResult(c.evalPassFilter(Id()("description"), Id()("filter1")), evalFalse)
-    probeResult(c.evalPassFilter(Id()("phone"), Id()("filter1")), evalTrue)
-    expectException(() => probeResult(c.evalPassFilter(Id()(unknownValueName), Id()("filter1")), ok, echo))
-    expectException(() => probeResult(c.evalPassFilter(Id()("phone"), Id()(unknownValueName)), ok, echo))
+    probeResult(c.evalPassFilter(Id("description"), Id("filter1")), evalFalse)
+    probeResult(c.evalPassFilter(Id("phone"), Id("filter1")), evalTrue)
+    expectException(() => probeResult(c.evalPassFilter(Id(unknownValueName), Id("filter1")), ok, echo))
+    expectException(() => probeResult(c.evalPassFilter(Id("phone"), Id(unknownValueName)), ok, echo))
   }
 
   @Test def testBinOps() {
 
-    val bigger = Num()("10")
-    val smaller = Num()("0")
-    val same = Num()("1.1")
-    val invalidNumber = Num()("x.x")
-    val invalidOp = Op()("?")
+    val bigger = Num("10")
+    val smaller = Num("0")
+    val same = Num("1.1")
+    val invalidNumber = Num("x.x")
+    val invalidOp = Op("?")
 
-    probeResult(c.evalRelOp(Id()("prize"), Op()(">"), smaller), evalTrue);
-    probeResult(c.evalRelOp(Id()("prize"), Op()("<"), bigger), evalTrue);
-    probeResult(c.evalRelOp(Id()("prize"), Op()(">="), smaller), evalTrue);
-    probeResult(c.evalRelOp(Id()("prize"), Op()("<="), bigger), evalTrue);
-    probeResult(c.evalRelOp(Id()("prize"), Op()("=="), same), evalTrue);
+    probeResult(c.evalRelOp(Id("prize"), Op(">"), smaller), evalTrue);
+    probeResult(c.evalRelOp(Id("prize"), Op("<"), bigger), evalTrue);
+    probeResult(c.evalRelOp(Id("prize"), Op(">="), smaller), evalTrue);
+    probeResult(c.evalRelOp(Id("prize"), Op("<="), bigger), evalTrue);
+    probeResult(c.evalRelOp(Id("prize"), Op("=="), same), evalTrue);
 
-    probeResult(c.evalRelOp(Id()("prize"), Op()(">"), bigger), evalFalse);
-    probeResult(c.evalRelOp(Id()("prize"), Op()("<"), smaller), evalFalse);
-    probeResult(c.evalRelOp(Id()("prize"), Op()(">="), bigger), evalFalse);
-    probeResult(c.evalRelOp(Id()("prize"), Op()("<="), smaller), evalFalse);
+    probeResult(c.evalRelOp(Id("prize"), Op(">"), bigger), evalFalse);
+    probeResult(c.evalRelOp(Id("prize"), Op("<"), smaller), evalFalse);
+    probeResult(c.evalRelOp(Id("prize"), Op(">="), bigger), evalFalse);
+    probeResult(c.evalRelOp(Id("prize"), Op("<="), smaller), evalFalse);
 
-    expectException(() => probeResult(c.evalRelOp(Id()(unknownValueName), Op()(">"), bigger), ok, echo));
-    expectException(() => probeResult(c.evalRelOp(Id()("prize"), Op()("=="), invalidNumber), ok, echo));
-    expectException(() => probeResult(c.evalRelOp(Id()("prize"), invalidOp, same), ok, echo));
-    expectException(() => probeResult(c.evalRelOp(Id()(unknownValueName), invalidOp, invalidNumber), ok, echo));
+    expectException(() => probeResult(c.evalRelOp(Id(unknownValueName), Op(">"), bigger), ok, echo));
+    expectException(() => probeResult(c.evalRelOp(Id("prize"), Op("=="), invalidNumber), ok, echo));
+    expectException(() => probeResult(c.evalRelOp(Id("prize"), invalidOp, same), ok, echo));
+    expectException(() => probeResult(c.evalRelOp(Id(unknownValueName), invalidOp, invalidNumber), ok, echo));
 
-    probeResult(c.evalBinOpBoolean(evalTrue, Op()("&"), evalTrue), evalTrue);
-    probeResult(c.evalBinOpBoolean(evalFalse, Op()("&"), evalTrue), evalFalse);
-    probeResult(c.evalBinOpBoolean(evalFalse, Op()("|"), evalTrue), evalTrue);
-    probeResult(c.evalBinOpBoolean(evalFalse, Op()("|"), evalFalse), evalFalse);
+    probeResult(c.evalBinOpBoolean(evalTrue, Op("&"), evalTrue), evalTrue);
+    probeResult(c.evalBinOpBoolean(evalFalse, Op("&"), evalTrue), evalFalse);
+    probeResult(c.evalBinOpBoolean(evalFalse, Op("|"), evalTrue), evalTrue);
+    probeResult(c.evalBinOpBoolean(evalFalse, Op("|"), evalFalse), evalFalse);
 
     expectException(() => probeResult(c.evalBinOpBoolean(evalTrue, invalidOp, evalTrue), ok, echo));
 
-    probeResult(c.evalBooleanNot(evalFalse, Op()("!")), evalTrue);
+    probeResult(c.evalBooleanNot(evalFalse, Op("!")), evalTrue);
 
   }
 
