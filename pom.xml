@@ -5,7 +5,7 @@
 	<artifactId>AdScraperExpressionFilter</artifactId>
 
 	<properties>
-		<lib_target_dir>${project.baseUri}${realtive_lib_target_dir}</lib_target_dir>
+		<lib_target_dir>${project.build.directory}/../../AdScraperGwt/war/WEB-INF/lib</lib_target_dir>
 		<dependency_dir>${project.build.directory}/dependency-jars/</dependency_dir>
 	</properties>
 	<parent>
@@ -16,9 +16,6 @@
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
-			<!-- plugin> <artifactId>maven-compiler-plugin</artifactId> <version>3.1</version> 
-				<configuration> <source>1.7</source> <target>1.7</target> </configuration> 
-				</plugin -->
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>scala-maven-plugin</artifactId>
@@ -30,10 +27,6 @@
 				<version>2.6</version>
 				<configuration>
 					<archive>
-						<index>true</index>
-						<manifest>
-							<addClasspath>true</addClasspath>
-						</manifest>
 						<manifestEntries>
 							<mode>development</mode>
 							<url>${project.url}</url>
@@ -65,13 +58,17 @@
 				<version>1.1</version>
 				<executions>
 					<execution>
-						<phase>validate</phase>
+						<phase>package</phase>
 						<goals>
 							<goal>run</goal>
 						</goals>
 						<configuration>
+							<target>
+							</target>
 							<tasks>
-								<echo>Libraries will be copied to ${lib_target_dir}</echo>
+								<echo message="Libraries will be copied to ${lib_target_dir}" />
+								<echo message="Libraries will be copied to ${lib_target_dir}" />
+								<delete file="${lib_target_dir}/AdScraperExpressionFilter-${project.version}.jar"/>
 							</tasks>
 						</configuration>
 					</execution>
@@ -84,7 +81,7 @@
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
-						<phase>package</phase>
+						<phase>install</phase>
 						<goals>
 							<goal>copy-dependencies</goal>
 						</goals>
