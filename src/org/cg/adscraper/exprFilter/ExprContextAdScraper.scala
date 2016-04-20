@@ -9,6 +9,14 @@ import collection.JavaConversions._
 
 class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEvaluator[Boolean] {
 
+  val constDecode = Map(("true", EvalOk(true)), ("false", EvalOk(false)))
+  val relOpDecode = Map(
+    (">", EvalOk((x: BigDecimal, y: BigDecimal) => x > y)),
+    ("<", EvalOk((x: BigDecimal, y: BigDecimal) => x < y)),
+    ("<=", EvalOk((x: BigDecimal, y: BigDecimal) => x <= y)),
+    (">=", EvalOk((x: BigDecimal, y: BigDecimal) => x >= y)),
+    ("==", EvalOk((x: BigDecimal, y: BigDecimal) => x == y)))
+
   def getFilter(name: String) = {
     J2S.conv(f.get(name)) match {
       case Some(filter) => EvalOk(filter)
@@ -16,47 +24,47 @@ class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEv
     }
   };
 
-  
   override def evalConst(const: String): EvalResult[Boolean] =
     {
-      const match {
-        case "true" => EvalOk(true)
-        case "false" => EvalOk(false)
+      constDecode.get(const) match {
+        case Some(c) => c
         case _ => EvalFail("Unknown const symbol: " + const)
       }
     }
 
   override def evalUnOp(arg: EvalResult[Boolean], op: Op): EvalResult[Boolean] = evalBooleanNot(arg, op)
 
-  def getNumber(v: Token) = 
-  {
-    v match {
-      case Id(token) => getCtxNumber(token)
-      case Num(token) => decodeNumber(token)
-      case _ => EvalFail("unexpected token type")
+  def getNumber(v: Token) =
+    {
+      v match {
+        case Id(token) => getCtxNumber(token)
+        case Num(token) => decodeNumber(token)
+        case _ => EvalFail("unexpected token type")
+      }
     }
-  } 
-  
+
   override def evalRelOp(v1: Token, op: Op, v2: Token): EvalResult[Boolean] = {
     getNumber(v1) match {
-      case EvalOk(comparand) => {
+      case EvalOk(v1) => {
         getNumber(v2) match {
-          case EvalOk(comparator) => {
+          case EvalOk(v2) => {
             getRelOp(op) match {
-              case EvalOk(f) => EvalOk(f(comparand, comparator))
-              case EvalFail(m) => EvalFail(m) // necessary in each step to create a EvalResult[Boolean] from EvalResult[Whatever]
+              case EvalOk(f) => EvalOk(f(v1, v2))
+              case EvalFail(m) => evalResultBoolTyped(m)
             }
           }
-          case EvalFail(m) => EvalFail(m)
+          case EvalFail(m) => evalResultBoolTyped(m)
         }
       }
-      case EvalFail(m) => EvalFail(m)
+      case EvalFail(m) => evalResultBoolTyped(m)
     }
   }
 
-  def evalBinOpBoolean(comparand: EvalResult[Boolean], op: Op, comparator: EvalResult[Boolean]): EvalResult[Boolean] =
+  private def evalResultBoolTyped(s: String): EvalResult[Boolean] = EvalFail(s)
+
+  def evalBinOpBoolean(v1: EvalResult[Boolean], op: Op, v2: EvalResult[Boolean]): EvalResult[Boolean] =
     {
-      (comparand, getBinBooleanOp(op), comparator) match {
+      (v1, getBinBooleanOp(op), v2) match {
         case (EvalOk(left), EvalOk(op), EvalOk(right)) => EvalOk(op(left, right))
         case (EvalFail(x), _, _) => EvalFail(x)
         case (_, EvalFail(x), _) => EvalFail(x)
@@ -64,7 +72,16 @@ class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEv
       }
     }
 
-  def evalPassFilter(valRef: Id, filterRef: Id): EvalResult[Boolean] = {
+  override def evalFunc(name: Id, params: List[Token]): EvalResult[Boolean] =
+    {
+      if (!(name.token.equals("passes") && params.length == 2 && params.foldLeft(true)((x, y) => x && y.isInstanceOf[Id]))) {
+        EvalFail("invalid function definition '%s' params: %s".format(name.token, params.foldLeft("")((x, y) => x + " " + y.token)))
+      } else {
+        evalPassFilter(params.head, params.tail.head)
+      }
+    }
+
+  def evalPassFilter(valRef: Token, filterRef: Token): EvalResult[Boolean] = {
     val ref = getCtxString(valRef.token)
     val f = getFilter(filterRef.token)
 
@@ -72,8 +89,8 @@ class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEv
       case (EvalOk(ref), EvalOk(f)) => {
         EvalOk(!f.exists(x => ref.indexOf(x) > 0))
       }
-      case (EvalFail(x), _) => EvalFail(x)
-      case (_, EvalFail(x)) => EvalFail(x)
+      case (EvalFail(x), _) => evalResultBoolTyped(x)
+      case (_, EvalFail(x)) => evalResultBoolTyped(x)
     }
   }
 
@@ -123,15 +140,8 @@ class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEv
     }
   }
 
-  private def getRelOp(op: Op) = {
-    op.token match {
-      case ">" => EvalOk((x: BigDecimal, y: BigDecimal) => x > y)
-      case "<" => EvalOk((x: BigDecimal, y: BigDecimal) => x < y)
-      case "<=" => EvalOk((x: BigDecimal, y: BigDecimal) => x <= y)
-      case ">=" => EvalOk((x: BigDecimal, y: BigDecimal) => x >= y)
-      case "==" => EvalOk((x: BigDecimal, y: BigDecimal) => x == y)
-      case _ => EvalFail("invalid numeric relational operator: " + op.token)
-    }
+  private def getRelOp[V](op: Op) = {
+    relOpDecode.get(op.token).orElse(Some(EvalFail("invalid relational operator: " + op.token))).get
   }
 
   private def getBinBooleanOp(op: Op) = {
@@ -142,16 +152,14 @@ class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEv
     }
   }
 
-  def evalBooleanNot(operand: EvalResult[Boolean], op: Op): EvalResult[Boolean] = {
-    op.token match {
-      case "!" => {
-        operand match {
-          case EvalOk(boolVal) => EvalOk(!boolVal)
-          case x => x
-        }
+  def evalBooleanNot(v: EvalResult[Boolean], op: Op): EvalResult[Boolean] = {
+    if (op.token.equals("!")) {
+      v match {
+        case EvalOk(boolVal) => EvalOk(!boolVal)
+        case x => x
       }
-      case _ => EvalFail("invalid boolean operator: " + op.token)
-    }
+    } else { EvalFail("invalid boolean operator: " + op.token) }
+
   }
 
 }

@@ -129,7 +129,7 @@ class ExprContextAdScraperSuite extends JUnitSuite {
 
   @Test def testParsing() {
     val p = parser
-    
+   
     assertEquals(1, p.eval("1 < 2").status)
     assertEquals(0, p.eval("1 > 2").status)
     assertEquals(-1, p.eval("1 ? 2").status)
@@ -147,6 +147,9 @@ class ExprContextAdScraperSuite extends JUnitSuite {
     expectException(() => probeResult(p.parse("x < 2"), ok, echo))
     expectException(() => probeResult(p.parse("1 ? 2"), ok, echo))
     expectException(() => probeResult(p.parse("(1 < 2 &))"), ok, echo)) 
+    expectException(() => probeResult(p.parse("passes(phone, filter1) & ! passes(description, filter1, oho)"), ok, echo))
+    expectException(() => probeResult(p.parse("passes(phone, filter1) & ! someFct(description, filter1)"), ok, echo))
 
   }
+ 
 }

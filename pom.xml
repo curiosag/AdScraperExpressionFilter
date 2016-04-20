@@ -41,7 +41,7 @@
 				<configuration>
 					<reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
 					<junitxml>.</junitxml>
-					<filereports>WDF TestSuite.txt</filereports>
+					<filereports>AdScraperExpressionTestSuite.txt</filereports>
 				</configuration>
 				<executions>
 					<execution>
@@ -67,8 +67,10 @@
 							</target>
 							<tasks>
 								<echo message="Libraries will be copied to ${lib_target_dir}" />
-								<echo message="Libraries will be copied to ${lib_target_dir}" />
-								<delete file="${lib_target_dir}/AdScraperExpressionFilter-${project.version}.jar"/>
+								<!-- that's not necessary, but I'll keep it to display the antrun 
+									syntax -->
+								<delete
+									file="${lib_target_dir}/AdScraperExpressionFilter-${project.version}.jar" />
 							</tasks>
 						</configuration>
 					</execution>
@@ -130,10 +132,9 @@
 			<artifactId>AdScraperAbstract</artifactId>
 			<version>0.1</version>
 		</dependency>
-		<!-- Classes probably will be found locally but NOT ON APPENGINE if scala 
-			versions -->
+		<!-- Classes will be found locally but NOT ON APPENGINE if scala versions -->
 		<!-- do not match for AdScraperExpressionFilter and scala-parser-combinators -->
-		<!-- org.scalatest:scalatest runs only locally, there's less an issue -->
+		<!-- org.scalatest:scalatest runs only locally, that's less an issue -->
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>

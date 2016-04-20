@@ -5,8 +5,7 @@ trait ExprEvaluator[T] {
   def evalUnOp(arg: EvalResult[T], op: Op): EvalResult[T]
   def evalRelOp(val1: Token, op: Op, val2: Token): EvalResult[T]
   def evalBinOpBoolean(arg1: EvalResult[T], op: Op, arg2: EvalResult[T]): EvalResult[T]
-
-  def evalPassFilter(valRef: Id, filterRef: Id): EvalResult[T]
+  def evalFunc(name: Id, params: List[Token]): EvalResult[T]
 }
 
 object defaultExprEvaluator extends ExprEvaluator[String] {
@@ -35,8 +34,8 @@ object defaultExprEvaluator extends ExprEvaluator[String] {
     EvalOk(ret)
   }
 
-  override def evalPassFilter(value: Id, filter: Id): EvalResult[String] = {
-    val ret = "passFilter: %s %s".format(value.token, filter.token)
+  override def evalFunc(name: Id, params: List[Token]): EvalResult[String] = {
+    val ret = "passFilter: %s params: %s".format(name.token, params.foldLeft("")((x, y) => x + " " + y.token))
     trace("evalPassFilter: " + ret)
     EvalOk(ret)
   }

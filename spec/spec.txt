@@ -1,5 +1,0 @@
-Follow AdFiltereingExpression.g4
-Valid identifiers are any from enum ValueKind (title, description, size, rooms, phone...)
-
-Maybe typed ValueKind decorators with extractors
-
