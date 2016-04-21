@@ -1,7 +1,7 @@
 package org.cg.adscraper.exprFilter
 
 trait ExprEvaluator[T] {
-  def evalConst(const: String): EvalResult[T]
+  def evalConst(const: Id): EvalResult[T]
   def evalUnOp(arg: EvalResult[T], op: Op): EvalResult[T]
   def evalRelOp(val1: Token, op: Op, val2: Token): EvalResult[T]
   def evalBinOpBoolean(arg1: EvalResult[T], op: Op, arg2: EvalResult[T]): EvalResult[T]
@@ -11,9 +11,9 @@ trait ExprEvaluator[T] {
 object defaultExprEvaluator extends ExprEvaluator[String] {
   def trace(v: String) = {System.out.println(v)}
 
-  override def evalConst(const: String): EvalResult[String] = {
-    trace("evalConst: " + const)
-    EvalOk(const)
+  override def evalConst(const: Id): EvalResult[String] = {
+    trace("evalConst: " + const.token)
+    EvalOk(const.token)
   }
 
   override def evalUnOp(arg: EvalResult[String], op: Op): EvalResult[String] = {

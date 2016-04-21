@@ -24,9 +24,9 @@ class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEv
     }
   };
 
-  override def evalConst(const: String): EvalResult[Boolean] =
+  override def evalConst(const: Id): EvalResult[Boolean] =
     {
-      constDecode.get(const) match {
+      constDecode.get(const.token) match {
         case Some(c) => c
         case _ => EvalFail("Unknown const symbol: " + const)
       }

@@ -60,7 +60,7 @@ class ExprParser[T](e: ExprEvaluator[T]) extends StandardTokenParsers {
 
   private def bFactor: Parser[EvalResult[T]] = bFunction | bConst | "(" ~> booleanExpr <~ ")"
 
-  private def bConst: Parser[EvalResult[T]] = (cFalse | cTrue) ^^ { case c => e.evalConst(c) }
+  private def bConst: Parser[EvalResult[T]] = (cFalse | cTrue) ^^ { case c => e.evalConst(Id(c)) }
 
   private def numBinOp: Parser[EvalResult[T]] = term ~ binOp ~ term ^^
     { case (v1 ~ op ~ v2) => e.evalRelOp(v1, Op(op), v2) }
