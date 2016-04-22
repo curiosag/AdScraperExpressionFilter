@@ -1,11 +1,10 @@
 package org.cg.adscraper.exprFilter
 
-abstract class AstNode
+sealed abstract class AstNode
 
 case class AstStructuralNonTerminal(name: String, children: List[AstNode]) extends AstNode
 case class AstNonTerminal(symbol: Token, children: List[AstNode]) extends AstNode
 case class AstTerminal(symbol: Token) extends AstNode
-case class AstError(msg: String) extends AstNode
 
 object AstEvaluator extends ExprEvaluator[AstNode] {
   def trace(v: String) = { System.out.println(v) }
@@ -31,7 +30,7 @@ object AstEvaluator extends ExprEvaluator[AstNode] {
     {
       arg1 match {
         case EvalOk(v) => v
-        case EvalFail(msg) => AstError(msg)
+        case EvalFail(_) => throw new RuntimeException // shouldn't happen
       }
     }
 

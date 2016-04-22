@@ -1,5 +1,6 @@
 package org.cg.adscraper.exprFilter
 
+
 private class AstPart(val structure: String, val labels: String) {
   def combined = "%s\n%s\n".format(structure, labels)
 }

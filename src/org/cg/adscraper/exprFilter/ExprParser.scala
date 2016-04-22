@@ -2,7 +2,7 @@ package org.cg.adscraper.exprFilter
 
 import scala.util.parsing.combinator.syntactical._;
 
-class Token(val token: String)
+sealed class Token(val token: String)
 {
   def value() = token
 }
