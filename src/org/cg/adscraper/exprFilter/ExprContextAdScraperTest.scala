@@ -11,6 +11,7 @@ import org.cg.ads.filterlist._;
 import java.util.ArrayList
 
 import scala.util.parsing.combinator
+import org.cg.scala.expressionparser._
 
 class ExprContextAdScraperSuite extends JUnitSuite {
 

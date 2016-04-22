@@ -1,5 +1,7 @@
 package org.cg.adscraper.exprFilter
 
+import org.cg.scala.expressionsparser._
+
 
 private class AstPart(val structure: String, val labels: String) {
   def combined = "%s\n%s\n".format(structure, labels)

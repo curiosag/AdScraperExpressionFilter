@@ -6,6 +6,7 @@ import com.google.common.base.Optional
 import org.cg.ads.advalues.ValueKind
 import org.cg.ads.advalues.InterpretedValue
 import collection.JavaConversions._
+import org.cg.scala.expressionparser._
 
 class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEvaluator[Boolean] {
 

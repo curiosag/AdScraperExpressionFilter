@@ -132,6 +132,11 @@
 			<artifactId>AdScraperAbstract</artifactId>
 			<version>0.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.cg.scala.comp</groupId>
+			<artifactId>expressionparser</artifactId>
+			<version>0.1</version>
+		</dependency>
 		<!-- Classes will be found locally but NOT ON APPENGINE if scala versions -->
 		<!-- do not match for AdScraperExpressionFilter and scala-parser-combinators -->
 		<!-- org.scalatest:scalatest runs only locally, that's less an issue -->

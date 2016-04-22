@@ -2,6 +2,7 @@ package org.cg.adscraper.exprFilter
 
 import org.cg.ads.advalues.ScrapedValues
 import org.cg.ads.filterlist.FilterList
+import org.cg.scala.expressionparser._
 
 class ExprParserAdScraper(v: ScrapedValues, f: FilterList) extends ExprParser[Boolean](new ExprContextAdScraper(v, f)) {
   

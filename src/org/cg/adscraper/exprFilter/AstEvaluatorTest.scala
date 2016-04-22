@@ -1,12 +1,15 @@
 package org.cg.adscraper.exprFilter
 
 import org.scalatest.junit.JUnitSuite
-import scala.collection.mutable.ListBuffer
 import org.junit.Assert._
 import org.junit.Test
 import org.junit.Before
-
-import scala.util.parsing.combinator
+import org.cg.scala.expressionparser.AstEvaluator
+import org.cg.scala.expressionparser.AstNode
+import org.cg.scala.expressionparser.EvalFail
+import org.cg.scala.expressionparser.EvalOk
+import org.cg.scala.expressionparser.EvalResult
+import org.cg.scala.expressionparser.{ExprParser => ExprParser[}
 
 class AstEvaluatorSuite extends JUnitSuite {
 
