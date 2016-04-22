@@ -53,8 +53,9 @@ class AstEvaluatorSuite extends JUnitSuite {
 
   @Test def testParsing() {
     val expr = "1 < prize < 100 & (false | true) & (1 < 0 | 1 > 0) | ! prize > prize & scorn(me, you, us)"
- //   parseAndPrint((x) => AstEvaluator.print(x), expr)
-    parseAndPrint((x) => AstLabeller(x).get(), expr)
+  //   parseAndPrint((x) => AstEvaluator.print(x), expr)
+ //   parseAndPrint((x) => TokenLabeller(x).get(), expr)
+       parseAndPrint((x) => Ast2Dot(x).get(), expr)
   }
  
 }
