@@ -7,6 +7,8 @@ import org.cg.ads.advalues.ValueKind
 import org.cg.ads.advalues.InterpretedValue
 import collection.JavaConversions._
 import org.cg.scala.expressionparser._
+import org.cg.scala.expressionparser.EvalEnvironment
+import org.cg.scala.expressionparser.BooleanEvaluator
 
 class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends BooleanEvaluator(new AdScraperEnvironment(scraped, f))
 
