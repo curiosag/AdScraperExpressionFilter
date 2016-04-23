@@ -18,6 +18,7 @@ class ExprContextAdScraperSuite extends JUnitSuite {
   val values = new ScrapedValues()
   val filters = new FilterList()
   val parser = new ExprParserAdScraper(values, filters)
+  val env = new AdScraperEnvironment(values, filters)
   val c = new ExprContextAdScraper(values, filters)
   val ok = EvalOk("expected exception:");
   val evalTrue = EvalOk(true);
@@ -77,30 +78,30 @@ class ExprContextAdScraperSuite extends JUnitSuite {
     }
 
   @Test def testNumberConversion() {
-    probeResult(c.decodeNumber("0"), EvalOk(0));
-    probeResult(c.decodeNumber("0.1"), EvalOk(0.1));
-    probeResult(c.decodeNumber("0,1"), EvalOk(0.1));
-    probeResult(c.decodeNumber("+0.1"), EvalOk(0.1));
-    probeResult(c.decodeNumber("-0.1"), EvalOk(-0.1));
-    expectException(() => probeResult(c.decodeNumber("1"), EvalOk(0)));
-    expectException(() => probeResult(c.decodeNumber("x"), EvalOk(0)));
-    expectException(() => probeResult(c.decodeNumber("1"), EvalFail("failure")));
+    probeResult(env.decodeNumber("0"), EvalOk(0));
+    probeResult(env.decodeNumber("0.1"), EvalOk(0.1));
+    probeResult(env.decodeNumber("0,1"), EvalOk(0.1));
+    probeResult(env.decodeNumber("+0.1"), EvalOk(0.1));
+    probeResult(env.decodeNumber("-0.1"), EvalOk(-0.1));
+    expectException(() => probeResult(env.decodeNumber("1"), EvalOk(0)));
+    expectException(() => probeResult(env.decodeNumber("x"), EvalOk(0)));
+    expectException(() => probeResult(env.decodeNumber("1"), EvalFail("failure")));
   }
 
   @Test def testCtxGetValues() {
 
-    probeResult(c.getCtxString("phone"), EvalOk("phone"));
-    expectException(() => probeResult(c.getCtxString("unknown"), ok, echo));
-    probeResult(c.getCtxString("prize"), EvalOk("1.1"));
-    probeResult(c.getFilter("filter1"), EvalOk(filter))
-    expectException(() => probeResult(c.getFilter("a non existing filter"), ok, echo));
+    probeResult(env.getCtxString("phone"), EvalOk("phone"));
+    expectException(() => probeResult(env.getCtxString("unknown"), ok, echo));
+    probeResult(env.getCtxString("prize"), EvalOk("1.1"));
+    probeResult(env.getFilter("filter1"), EvalOk(filter))
+    expectException(() => probeResult(env.getFilter("a non existing filter"), ok, echo));
   }
 
   @Test def testPassFilter() {
-    probeResult(c.evalPassFilter(Id("description"), Id("filter1")), evalFalse)
-    probeResult(c.evalPassFilter(Id("phone"), Id("filter1")), evalTrue)
-    expectException(() => probeResult(c.evalPassFilter(Id(unknownValueName), Id("filter1")), ok, echo))
-    expectException(() => probeResult(c.evalPassFilter(Id("phone"), Id(unknownValueName)), ok, echo))
+    probeResult(env.evalPassFilter(Id("description"), Id("filter1")), evalFalse)
+    probeResult(env.evalPassFilter(Id("phone"), Id("filter1")), evalTrue)
+    expectException(() => probeResult(env.evalPassFilter(Id(unknownValueName), Id("filter1")), ok, echo))
+    expectException(() => probeResult(env.evalPassFilter(Id("phone"), Id(unknownValueName)), ok, echo))
   }
 
   @Test def testBinOps() {

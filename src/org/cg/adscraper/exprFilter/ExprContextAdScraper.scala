@@ -8,70 +8,9 @@ import org.cg.ads.advalues.InterpretedValue
 import collection.JavaConversions._
 import org.cg.scala.expressionparser._
 
-class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEvaluator[EvalResult[Boolean]] {
+class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends BooleanEvaluator(new AdScraperEnvironment(scraped, f))
 
-  val constDecode = Map(("true", EvalOk(true)), ("false", EvalOk(false)))
-  val relOpDecode = Map(
-    (">", EvalOk((x: BigDecimal, y: BigDecimal) => x > y)),
-    ("<", EvalOk((x: BigDecimal, y: BigDecimal) => x < y)),
-    ("<=", EvalOk((x: BigDecimal, y: BigDecimal) => x <= y)),
-    (">=", EvalOk((x: BigDecimal, y: BigDecimal) => x >= y)),
-    ("==", EvalOk((x: BigDecimal, y: BigDecimal) => x == y)))
-
-  def getFilter(name: String) = {
-    J2S.conv(f.get(name)) match {
-      case Some(filter) => EvalOk(filter)
-      case _ => EvalFail("Filter '%s' not defined".format(name))
-    }
-  };
-
-  override def evalConst(const: Id): EvalResult[Boolean] =
-    {
-      constDecode.get(const.token) match {
-        case Some(c) => c
-        case _ => EvalFail("Unknown const symbol: " + const)
-      }
-    }
-
-  override def evalUnOp(arg: EvalResult[Boolean], op: Op): EvalResult[Boolean] = evalBooleanNot(arg, op)
-
-  def getNumber(v: Token) =
-    {
-      v match {
-        case Id(token) => getCtxNumber(token)
-        case Num(token) => decodeNumber(token)
-        case _ => EvalFail("unexpected token type")
-      }
-    }
-
-  override def evalRelOp(v1: Token, op: Op, v2: Token): EvalResult[Boolean] = {
-    getNumber(v1) match {
-      case EvalOk(v1) => {
-        getNumber(v2) match {
-          case EvalOk(v2) => {
-            getRelOp(op) match {
-              case EvalOk(f) => EvalOk(f(v1, v2))
-              case EvalFail(m) => evalResultBoolTyped(m)
-            }
-          }
-          case EvalFail(m) => evalResultBoolTyped(m)
-        }
-      }
-      case EvalFail(m) => evalResultBoolTyped(m)
-    }
-  }
-
-  private def evalResultBoolTyped(s: String): EvalResult[Boolean] = EvalFail(s)
-
-  def evalBinOpBoolean(v1: EvalResult[Boolean], op: Op, v2: EvalResult[Boolean]): EvalResult[Boolean] =
-    {
-      (v1, getBinBooleanOp(op), v2) match {
-        case (EvalOk(left), EvalOk(op), EvalOk(right)) => EvalOk(op(left, right))
-        case (EvalFail(x), _, _) => EvalFail(x)
-        case (_, EvalFail(x), _) => EvalFail(x)
-        case (_, _, EvalFail(x)) => EvalFail(x)
-      }
-    }
+class AdScraperEnvironment(scraped: ScrapedValues, f: FilterList) extends EvalEnvironment {
 
   override def evalFunc(name: Id, params: List[Token]): EvalResult[Boolean] =
     {
@@ -81,6 +20,24 @@ class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEv
         evalPassFilter(params.head, params.tail.head)
       }
     }
+
+  override def getNumber(v: Token) =
+    {
+      v match {
+        case Id(token) => getCtxNumber(token)
+        case Num(token) => decodeNumber(token)
+        case _ => EvalFail("unexpected token type")
+      }
+    }
+
+  def getFilter(name: String) = {
+    J2S.conv(f.get(name)) match {
+      case Some(filter) => EvalOk(filter)
+      case _ => EvalFail("Filter '%s' not defined".format(name))
+    }
+  }
+
+  private def evalResultBoolTyped(s: String): EvalResult[Boolean] = EvalFail(s)
 
   def evalPassFilter(valRef: Token, filterRef: Token): EvalResult[Boolean] = {
     val ref = getCtxString(valRef.token)
@@ -133,34 +90,5 @@ class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEv
         case t: Exception => EvalFail("Unexpected exception when converting " + numValue + " " + t.getClass.getSimpleName)
       }
     }
-
-  private def evalOptBoolean(x: Option[Boolean], y: Option[Boolean], f: (Boolean, Boolean) => Boolean) = {
-    (x, y) match {
-      case (Some(x), Some(y)) => Some(f(x, y))
-      case _ => None
-    }
-  }
-
-  private def getRelOp[V](op: Op) = {
-    relOpDecode.get(op.token).orElse(Some(EvalFail("invalid relational operator: " + op.token))).get
-  }
-
-  private def getBinBooleanOp(op: Op) = {
-    op.token match {
-      case "&" => EvalOk((x: Boolean, y: Boolean) => x & y)
-      case "|" => EvalOk((x: Boolean, y: Boolean) => x | y)
-      case _ => EvalFail("invalid boolean operator: " + op.token)
-    }
-  }
-
-  def evalBooleanNot(v: EvalResult[Boolean], op: Op): EvalResult[Boolean] = {
-    if (op.token.equals("!")) {
-      v match {
-        case EvalOk(boolVal) => EvalOk(!boolVal)
-        case x => x
-      }
-    } else { EvalFail("invalid boolean operator: " + op.token) }
-
-  }
 
 }
