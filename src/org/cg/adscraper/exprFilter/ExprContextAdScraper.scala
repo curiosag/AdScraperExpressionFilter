@@ -8,7 +8,7 @@ import org.cg.ads.advalues.InterpretedValue
 import collection.JavaConversions._
 import org.cg.scala.expressionparser._
 
-class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEvaluator[Boolean] {
+class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends ExprEvaluator[EvalResult[Boolean]] {
 
   val constDecode = Map(("true", EvalOk(true)), ("false", EvalOk(false)))
   val relOpDecode = Map(

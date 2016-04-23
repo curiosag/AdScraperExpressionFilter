@@ -1,6 +1,6 @@
 package org.cg.adscraper.exprFilter
 
-import org.cg.scala.expressionsparser._
+import org.cg.scala.expressionparser._
 
 
 private class AstPart(val structure: String, val labels: String) {

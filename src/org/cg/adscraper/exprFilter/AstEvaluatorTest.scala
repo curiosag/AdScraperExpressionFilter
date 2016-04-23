@@ -1,15 +1,11 @@
 package org.cg.adscraper.exprFilter
 
+import scala.util.parsing.combinator.Parsers
 import org.scalatest.junit.JUnitSuite
 import org.junit.Assert._
 import org.junit.Test
 import org.junit.Before
-import org.cg.scala.expressionparser.AstEvaluator
-import org.cg.scala.expressionparser.AstNode
-import org.cg.scala.expressionparser.EvalFail
-import org.cg.scala.expressionparser.EvalOk
-import org.cg.scala.expressionparser.EvalResult
-import org.cg.scala.expressionparser.{ExprParser => ExprParser[}
+import org.cg.scala.expressionparser._
 
 class AstEvaluatorSuite extends JUnitSuite {
 
@@ -48,8 +44,8 @@ class AstEvaluatorSuite extends JUnitSuite {
     val p = new ExprParser(AstEvaluator)
     val v = p.parse(s) match 
     {
-      case EvalOk(node) => conv(node)
-      case EvalFail(msg) => msg
+      case ExprOk(node) => conv(node)
+      case ExprErr(msg) => msg
     }
     echo(v)
   } 

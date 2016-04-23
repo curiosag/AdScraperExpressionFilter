@@ -44,7 +44,7 @@ class ExprContextAdScraperSuite extends JUnitSuite {
   @Before def initialize() {
   }
 
-  def probeResult[T](comp: EvalResult[T], num: EvalResult[T]): Unit = probeResult(comp, num, identity)
+  def probeResult[T](comp: EvalResult[T], num: EvalResult[T]): Unit = { probeResult(comp, num, identity) }
 
   def probeResult[T](comp: EvalResult[T], num: EvalResult[T], feedback: (String) => String) =
     {
@@ -53,6 +53,16 @@ class ExprContextAdScraperSuite extends JUnitSuite {
         case _ => {
           fail(feedback("%s != %s".format(num.toString(), comp.toString())))
         }
+      }
+    }
+
+  def probeParseResult[T](r: ExprParseResult[EvalResult[T]], comp: EvalResult[T]): Unit = { probeParseResult(r, comp, identity) }
+
+  def probeParseResult[T](r: ExprParseResult[EvalResult[T]], comp: EvalResult[T], feedback: (String) => String) =
+    {
+      r match {
+        case ExprOk(x) => probeResult(x, comp)
+        case ExprErr(x) => probeResult(EvalFail(x), comp)
       }
     }
 
@@ -130,27 +140,27 @@ class ExprContextAdScraperSuite extends JUnitSuite {
 
   @Test def testParsing() {
     val p = parser
-   
+
     assertEquals(1, p.eval("1 < 2").status)
     assertEquals(0, p.eval("1 > 2").status)
     assertEquals(-1, p.eval("1 ? 2").status)
-    
-    probeResult(p.parse("1 < 2"), evalTrue)
-    
-    probeResult(p.parse("1 > 2"), evalFalse)
-    probeResult(p.parse("! prize > 2"), evalTrue)
-    probeResult(p.parse("1 < prize < 100 "), evalTrue)
-    probeResult(p.parse("1 < prize < 100 & (false | true) & (1 < 0 | 1 > 0) & ! prize > prize"), evalTrue)
-    probeResult(p.parse("passes(phone, filter1) & ! passes(description, filter1)"), evalTrue)
-    
-    expectException(() => probeResult(p.parse("prize == size"), ok, echo))
-    expectException(() => probeResult(p.parse("passes(phone, unknownfilter) & ! passes(description, filter1)"), ok, echo))
-    expectException(() => probeResult(p.parse("x < 2"), ok, echo))
-    expectException(() => probeResult(p.parse("1 ? 2"), ok, echo))
-    expectException(() => probeResult(p.parse("(1 < 2 &))"), ok, echo)) 
-    expectException(() => probeResult(p.parse("passes(phone, filter1) & ! passes(description, filter1, oho)"), ok, echo))
-    expectException(() => probeResult(p.parse("passes(phone, filter1) & ! someFct(description, filter1)"), ok, echo))
+
+    probeParseResult(p.parse("1 < 2"), evalTrue)
+
+    probeParseResult(p.parse("1 > 2"), evalFalse)
+    probeParseResult(p.parse("! prize > 2"), evalTrue)
+    probeParseResult(p.parse("1 < prize < 100 "), evalTrue)
+    probeParseResult(p.parse("1 < prize < 100 & (false | true) & (1 < 0 | 1 > 0) & ! prize > prize"), evalTrue)
+    probeParseResult(p.parse("passes(phone, filter1) & ! passes(description, filter1)"), evalTrue)
+
+    expectException(() => probeParseResult(p.parse("prize == size"), ok, echo))
+    expectException(() => probeParseResult(p.parse("passes(phone, unknownfilter) & ! passes(description, filter1)"), ok, echo))
+    expectException(() => probeParseResult(p.parse("x < 2"), ok, echo))
+    expectException(() => probeParseResult(p.parse("1 ? 2"), ok, echo))
+    expectException(() => probeParseResult(p.parse("(1 < 2 &))"), ok, echo))
+    expectException(() => probeParseResult(p.parse("passes(phone, filter1) & ! passes(description, filter1, oho)"), ok, echo))
+    expectException(() => probeParseResult(p.parse("passes(phone, filter1) & ! someFct(description, filter1)"), ok, echo))
 
   }
- 
+
 }
