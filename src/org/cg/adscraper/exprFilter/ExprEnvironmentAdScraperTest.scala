@@ -13,13 +13,13 @@ import java.util.ArrayList
 import scala.util.parsing.combinator
 import org.cg.scala.expressionparser._
 
-class ExprContextAdScraperSuite extends JUnitSuite {
+class ExprEnvironmentAdScraperSuite extends JUnitSuite {
 
   val values = new ScrapedValues()
   val filters = new FilterList()
   val parser = new ExprParserAdScraper(values, filters)
   val env = new AdScraperEnvironment(values, filters)
-  val c = new ExprContextAdScraper(values, filters)
+  val c = new ExprEvaluatorAdScraper(values, filters)
   val ok = EvalOk("expected exception:");
   val evalTrue = EvalOk(true);
   val evalFalse = EvalOk(false);

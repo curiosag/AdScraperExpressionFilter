@@ -4,7 +4,7 @@ import org.cg.ads.advalues.ScrapedValues
 import org.cg.ads.filterlist.FilterList
 import org.cg.scala.expressionparser._
 
-class ExprParserAdScraper(v: ScrapedValues, f: FilterList) extends ExprParser[EvalResult[Boolean]](new ExprContextAdScraper(v, f)) {
+class ExprParserAdScraper(v: ScrapedValues, f: FilterList) extends ExprParser[EvalResult[Boolean]](new ExprEvaluatorAdScraper(v, f)) {
   
   def eval(rule: String): ResultAdScraper = {
     parse(rule) match {

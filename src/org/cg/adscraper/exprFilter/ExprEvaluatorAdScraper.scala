@@ -10,7 +10,7 @@ import org.cg.scala.expressionparser._
 import org.cg.scala.expressionparser.EvalEnvironment
 import org.cg.scala.expressionparser.BooleanEvaluator
 
-class ExprContextAdScraper(scraped: ScrapedValues, f: FilterList) extends BooleanEvaluator(new AdScraperEnvironment(scraped, f))
+class ExprEvaluatorAdScraper(scraped: ScrapedValues, f: FilterList) extends BooleanEvaluator(new AdScraperEnvironment(scraped, f))
 
 class AdScraperEnvironment(scraped: ScrapedValues, f: FilterList) extends EvalEnvironment {
 
