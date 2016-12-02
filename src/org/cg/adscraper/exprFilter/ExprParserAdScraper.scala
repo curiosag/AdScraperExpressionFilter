@@ -11,6 +11,7 @@ class ExprParserAdScraper(v: ScrapedValues, f: FilterList) extends ExprParser[Ev
       case ExprOk(EvalOk(true)) => new ResultAdScraper(1, "")
       case ExprOk(EvalOk(false)) => new ResultAdScraper(0, "")
       case ExprErr(msg) => new ResultAdScraper(-1, msg)
+      case ExprOk(EvalFail(msg)) => new ResultAdScraper(-1, msg)
     }
   }
   
